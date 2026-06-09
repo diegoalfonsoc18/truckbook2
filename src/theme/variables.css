@@ -1,0 +1,158 @@
+:root {
+  --ion-color-primary: #FFE500;
+  --ion-color-primary-rgb: 255, 229, 0;
+  --ion-color-primary-contrast: #1a1a1a;
+  --ion-color-primary-contrast-rgb: 26, 26, 26;
+  --ion-color-primary-shade: #e0c900;
+  --ion-color-primary-tint: #ffe819;
+
+  --ion-color-success: #2dd36f;
+  --ion-color-danger: #eb445a;
+
+  --ion-background-color: #f8f8f8;
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-border-color: #e0e0e0;
+
+  --truck-dark: #1a1a2e;
+  --truck-yellow: #FFE500;
+  --truck-green: #2dd36f;
+  --truck-red: #eb445a;
+  --truck-gray: #8c8c8c;
+}
+
+/* Chip de placa */
+.placa-chip {
+  background: var(--truck-yellow);
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 2px 10px;
+  display: inline-block;
+}
+
+/* Cards de categoría */
+.categoria-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.categoria-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.categoria-btn:active { transform: scale(0.95); }
+.categoria-btn span { font-size: 11px; color: #555; font-weight: 500; }
+.categoria-icon { font-size: 28px; }
+
+/* Total del día */
+.total-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.total-amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.total-label {
+  font-size: 12px;
+  color: var(--truck-gray);
+  margin-bottom: 4px;
+}
+
+/* Registros */
+.registro-item {
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.badge-pendiente {
+  background: #fff3cd;
+  color: #856404;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge-pagado {
+  background: #d1e7dd;
+  color: #0a3622;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge-cobrar {
+  background: #f8d7da;
+  color: #842029;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+/* Home cards */
+.home-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.home-stat-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+/* Reportes */
+.balance-positivo { color: var(--truck-green); }
+.balance-negativo { color: var(--truck-red); }
+
+.chart-bar-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 120px;
+  padding: 8px 0;
+}
+
+.chart-bar {
+  flex: 1;
+  border-radius: 6px 6px 0 0;
+  min-height: 4px;
+  transition: height 0.3s;
+}
+
+ion-tab-bar {
+  --border: 1px solid #e0e0e0;
+  height: 60px;
+}
+
+ion-tab-button {
+  --color: #8c8c8c;
+  --color-selected: #1a1a1a;
+}
