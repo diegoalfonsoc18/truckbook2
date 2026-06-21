@@ -147,6 +147,88 @@
   transition: height 0.3s;
 }
 
+/* ===== Home v2 (diseño dashboard) ===== */
+
+/* Tarjeta vehículo activo */
+.vehiculo-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  margin-bottom: 16px;
+}
+
+/* Fila de dos tarjetas (medidor + por cobrar) */
+.home-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.gauge-card {
+  background: #e9f6ee;
+  border-radius: 20px;
+  padding: 16px 12px 14px;
+  text-align: center;
+}
+
+.cobrar-card {
+  background: #fdecec;
+  border-radius: 20px;
+  padding: 16px 16px 14px;
+}
+
+/* Actividad semanal: scroll horizontal */
+.actividad-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.actividad-scroll::-webkit-scrollbar { display: none; }
+
+.actividad-card {
+  flex: 0 0 70%;
+  max-width: 280px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  scroll-snap-align: start;
+}
+
+/* Top clientes (tarjeta oscura) */
+.top-clientes-card {
+  background: #15151b;
+  border-radius: 22px;
+  padding: 20px 18px 8px;
+  color: #fff;
+  margin-top: 18px;
+}
+
+.top-cliente-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.rank-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
 ion-tab-bar {
   --border: 1px solid #e0e0e0;
   height: 60px;
