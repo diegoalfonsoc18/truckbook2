@@ -1,9 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'truckbook2',
-  webDir: 'www'
+  appId: 'com.truckbook.app',
+  appName: 'TruckBook',
+  webDir: 'build'
 };
 
 export default config;
