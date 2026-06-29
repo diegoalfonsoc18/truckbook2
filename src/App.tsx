@@ -9,11 +9,13 @@ import Gastos from './pages/Gastos';
 import Ingresos from './pages/Ingresos';
 import Reportes from './pages/Reportes';
 import Cuenta from './pages/Cuenta';
+import { DataProvider } from './data/DataContext';
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
+    <DataProvider>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
@@ -51,6 +53,7 @@ const App: React.FC = () => (
         </IonTabBar>
       </IonTabs>
     </IonReactRouter>
+    </DataProvider>
   </IonApp>
 );
 
