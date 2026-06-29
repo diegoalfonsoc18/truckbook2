@@ -4,7 +4,7 @@ import {
   IonModal, IonDatetime, IonIcon,
 } from '@ionic/react';
 import { arrowForward, documentTextOutline, close } from 'ionicons/icons';
-import { useData, PLACA_ACTUAL } from '../data/DataContext';
+import { useData } from '../data/DataContext';
 import { GASTOS_CATEGORIAS, INGRESOS_CATEGORIAS, buscarCategoria } from '../data/categorias';
 import { generarReporteHTML, ViewType } from '../data/reporte';
 
@@ -98,7 +98,7 @@ const PERIODOS: { key: PeriodoRapido; label: string }[] = [
 ];
 
 const Reportes: React.FC = () => {
-  const { gastos, ingresos } = useData();
+  const { gastos, ingresos, placa } = useData();
 
   const [view, setView] = useState<ViewType>('meses');
   const [rango, setRango] = useState(rangoMesActual);
@@ -114,7 +114,7 @@ const Reportes: React.FC = () => {
   const [exportRango, setExportRango] = useState(rangoMesActual);
   const [exportCliente, setExportCliente] = useState('');
 
-  const placasActivas = [PLACA_ACTUAL];
+  const placasActivas = [placa];
 
   // ── Cálculos memorizados ──
   const {
@@ -265,7 +265,7 @@ const Reportes: React.FC = () => {
         <IonToolbar>
           <div className="tb-header" style={{ padding: '8px 16px' }}>
             <h1 className="tb-title">Finanzas</h1>
-            <span className="tb-plate">{PLACA_ACTUAL}</span>
+            <span className="tb-plate">{placa}</span>
           </div>
         </IonToolbar>
       </IonHeader>

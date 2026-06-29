@@ -38,8 +38,8 @@ const vehiculos: Vehiculo[] = [
 ];
 
 const Home: React.FC = () => {
-  const { gastos, ingresos } = useData();
-  const [vehiculoActivo, setVehiculoActivo] = useState<Vehiculo>(vehiculos[0]);
+  const { gastos, ingresos, placa, setPlaca } = useData();
+  const vehiculoActivo = vehiculos.find((v) => v.placa === placa) ?? vehiculos[0];
   const [showModal, setShowModal] = useState(false);
 
   // ===== Cálculos de la semana =====
@@ -171,7 +171,7 @@ const Home: React.FC = () => {
                   key={i}
                   button
                   onClick={() => {
-                    setVehiculoActivo(v);
+                    setPlaca(v.placa);
                     setShowModal(false);
                   }}
                 >

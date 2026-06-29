@@ -1,32 +1,51 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Gasto, Ingreso } from './types';
 import { hoyISO } from './format';
 
-// Placa fija para la demo
-export const PLACA_ACTUAL = 'EKA854';
+// Placa por defecto al iniciar
+export const PLACA_DEFAULT = 'EKA854';
+// Alias retrocompatible
+export const PLACA_ACTUAL = PLACA_DEFAULT;
 
-const LS_GASTOS = 'tb_gastos';
-const LS_INGRESOS = 'tb_ingresos';
+// Versionamos las claves para re-sembrar con datos multi-vehículo
+const LS_GASTOS = 'tb_gastos_v2';
+const LS_INGRESOS = 'tb_ingresos_v2';
+const LS_PLACA = 'tb_placa';
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-// ---- Datos de ejemplo (solo la primera vez) ----
+// ---- Datos de ejemplo por vehículo (solo la primera vez) ----
 function seedGastos(): Gasto[] {
   const f = hoyISO();
+  const g = (placa: string, categoria: string, descripcion: string, monto: number, estado: 'pendiente' | 'pagado'): Gasto =>
+    ({ id: uid(), placa, categoria, descripcion, monto, fecha: f, estado });
   return [
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'parqueadero', descripcion: 'Parqueadero centro', monto: 15000, fecha: f, estado: 'pagado' },
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'comida', descripcion: 'Almuerzo', monto: 20000, fecha: f, estado: 'pagado' },
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'peajes', descripcion: 'Peaje', monto: 21500, fecha: f, estado: 'pagado' },
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'combustible', descripcion: 'Tanqueo', monto: 150000, fecha: f, estado: 'pendiente' },
+    // EKA854 (Volqueta)
+    g('EKA854', 'parqueadero', 'Parqueadero centro', 15000, 'pagado'),
+    g('EKA854', 'comida', 'Almuerzo', 20000, 'pagado'),
+    g('EKA854', 'peajes', 'Peaje', 21500, 'pagado'),
+    g('EKA854', 'combustible', 'Tanqueo', 150000, 'pendiente'),
+    // TRK001 (Tractomula)
+    g('TRK001', 'combustible', 'Tanqueo ruta', 320000, 'pagado'),
+    g('TRK001', 'comida', 'Comida en ruta', 35000, 'pendiente'),
+    g('TRK001', 'peajes', 'Peajes ruta', 64000, 'pagado'),
+    // CMN332 sin datos (estado vacío)
   ];
 }
 
 function seedIngresos(): Ingreso[] {
   const f = hoyISO();
+  const i = (placa: string, descripcion: string, monto: number, estado: 'pendiente' | 'confirmado'): Ingreso =>
+    ({ id: uid(), placa, categoria: 'flete', descripcion, monto, fecha: f, estado, cantidad: 1 });
   return [
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'flete', descripcion: 'Manuel Morales', monto: 450000, fecha: f, estado: 'pendiente', cantidad: 1 },
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'flete', descripcion: 'Luis Fernando Puerta', monto: 250000, fecha: f, estado: 'confirmado', cantidad: 1 },
-    { id: uid(), placa: PLACA_ACTUAL, categoria: 'flete', descripcion: 'Edwin Duarte', monto: 750000, fecha: f, estado: 'pendiente', cantidad: 1 },
+    // EKA854
+    i('EKA854', 'Manuel Morales', 450000, 'pendiente'),
+    i('EKA854', 'Luis Fernando Puerta', 250000, 'confirmado'),
+    i('EKA854', 'Edwin Duarte', 750000, 'pendiente'),
+    // TRK001
+    i('TRK001', 'Transportes del Valle', 1200000, 'confirmado'),
+    i('TRK001', 'Efraín Alvarado', 800000, 'pendiente'),
+    // CMN332 sin datos
   ];
 }
 
@@ -44,8 +63,9 @@ function load<T>(key: string, seed: () => T[]): T[] {
 
 interface DataContextValue {
   placa: string;
-  gastos: Gasto[];
-  ingresos: Ingreso[];
+  setPlaca: (placa: string) => void;
+  gastos: Gasto[];      // filtrados por la placa activa
+  ingresos: Ingreso[];  // filtrados por la placa activa
   addGasto: (g: Omit<Gasto, 'id' | 'placa'>) => void;
   addIngreso: (i: Omit<Ingreso, 'id' | 'placa'>) => void;
   deleteGasto: (id: string) => void;
@@ -57,33 +77,34 @@ interface DataContextValue {
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [gastos, setGastos] = useState<Gasto[]>(() => load(LS_GASTOS, seedGastos));
-  const [ingresos, setIngresos] = useState<Ingreso[]>(() => load(LS_INGRESOS, seedIngresos));
+  const [allGastos, setAllGastos] = useState<Gasto[]>(() => load(LS_GASTOS, seedGastos));
+  const [allIngresos, setAllIngresos] = useState<Ingreso[]>(() => load(LS_INGRESOS, seedIngresos));
+  const [placa, setPlacaState] = useState<string>(() => localStorage.getItem(LS_PLACA) || PLACA_DEFAULT);
 
-  useEffect(() => {
-    localStorage.setItem(LS_GASTOS, JSON.stringify(gastos));
-  }, [gastos]);
+  useEffect(() => { localStorage.setItem(LS_GASTOS, JSON.stringify(allGastos)); }, [allGastos]);
+  useEffect(() => { localStorage.setItem(LS_INGRESOS, JSON.stringify(allIngresos)); }, [allIngresos]);
+  useEffect(() => { localStorage.setItem(LS_PLACA, placa); }, [placa]);
 
-  useEffect(() => {
-    localStorage.setItem(LS_INGRESOS, JSON.stringify(ingresos));
-  }, [ingresos]);
+  // Datos de la placa activa
+  const gastos = useMemo(() => allGastos.filter((g) => g.placa === placa), [allGastos, placa]);
+  const ingresos = useMemo(() => allIngresos.filter((i) => i.placa === placa), [allIngresos, placa]);
 
   const addGasto: DataContextValue['addGasto'] = (g) =>
-    setGastos((prev) => [{ ...g, id: uid(), placa: PLACA_ACTUAL }, ...prev]);
+    setAllGastos((prev) => [{ ...g, id: uid(), placa }, ...prev]);
 
   const addIngreso: DataContextValue['addIngreso'] = (i) =>
-    setIngresos((prev) => [{ ...i, id: uid(), placa: PLACA_ACTUAL }, ...prev]);
+    setAllIngresos((prev) => [{ ...i, id: uid(), placa }, ...prev]);
 
-  const deleteGasto = (id: string) => setGastos((prev) => prev.filter((g) => g.id !== id));
-  const deleteIngreso = (id: string) => setIngresos((prev) => prev.filter((i) => i.id !== id));
+  const deleteGasto = (id: string) => setAllGastos((prev) => prev.filter((g) => g.id !== id));
+  const deleteIngreso = (id: string) => setAllIngresos((prev) => prev.filter((i) => i.id !== id));
 
   const toggleGasto = (id: string) =>
-    setGastos((prev) =>
+    setAllGastos((prev) =>
       prev.map((g) => (g.id === id ? { ...g, estado: g.estado === 'pagado' ? 'pendiente' : 'pagado' } : g))
     );
 
   const toggleIngreso = (id: string) =>
-    setIngresos((prev) =>
+    setAllIngresos((prev) =>
       prev.map((i) =>
         i.id === id ? { ...i, estado: i.estado === 'confirmado' ? 'pendiente' : 'confirmado' } : i
       )
@@ -92,7 +113,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <DataContext.Provider
       value={{
-        placa: PLACA_ACTUAL,
+        placa,
+        setPlaca: setPlacaState,
         gastos,
         ingresos,
         addGasto,
