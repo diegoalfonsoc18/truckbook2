@@ -173,6 +173,15 @@
   text-align: center;
 }
 
+/* Widgets cuadrados del Home (Resumen / Por cobrar) */
+.widget-card {
+  height: 180px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--tb-border);
+  box-shadow: var(--tb-shadow);
+}
+
 .cobrar-card {
   background: #fdecec;
   border-radius: 20px;
@@ -240,3 +249,18 @@ ion-tab-button {
   --color: #8c8c8c;
   --color-selected: #1a1a1a;
 }
+
+/* Iconos SVG del tab bar (fill/outline) */
+.tab-ico {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.tab-ico svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.tab-ico .ico-fill { display: none; }
+ion-tab-button.tab-selected .tab-ico .ico-outline { display: none; }
+ion-tab-button.tab-selected .tab-ico .ico-fill { display: block; }

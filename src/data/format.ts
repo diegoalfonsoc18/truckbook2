@@ -32,6 +32,14 @@ export function hoyISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Días transcurridos desde una fecha "YYYY-MM-DD"
+export function diasDesde(fecha: string): number {
+  if (!fecha) return 0;
+  const d = new Date(fecha + 'T12:00:00').getTime();
+  const now = new Date().getTime();
+  return Math.max(0, Math.floor((now - d) / 86_400_000));
+}
+
 // Inicio de semana (lunes) en "YYYY-MM-DD"
 export function inicioSemana(d = new Date()): string {
   const day = (d.getDay() + 6) % 7; // 0 = lunes

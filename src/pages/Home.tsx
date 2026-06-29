@@ -14,12 +14,8 @@ import {
 import {
   cubeOutline,
   peopleOutline,
-  timeOutline,
-  personCircleOutline,
   carOutline,
   checkmarkCircle,
-  arrowUp,
-  arrowDown,
 } from "ionicons/icons";
 import volquetaImg from "../assets/icon/volquetaFlete.webp";
 import estacaImg from "../assets/icon/estacaFlete.webp";
@@ -28,6 +24,9 @@ import truckIcon from "../assets/icon/freight.webp";
 import tollIcon from "../assets/icon/toll.webp";
 import { useData } from "../data/DataContext";
 import { inicioSemana, formatCompact } from "../data/format";
+import WidgetClientes from "../components/WidgetClientes";
+import WidgetResumen from "../components/WidgetResumen";
+import WidgetInsightIA from "../components/WidgetInsightIA";
 
 interface Vehiculo {
   placa: string;
@@ -64,9 +63,6 @@ const Home: React.FC = () => {
     (a, i) => a + i.monto * (i.cantidad ?? 1),
     0,
   );
-  const totalGasSemana = gasSemana.reduce((a, g) => a + g.monto, 0);
-  const balanceSemana = totalIngSemana - totalGasSemana;
-  const balPositivo = balanceSemana >= 0;
 
   // Viajes (fletes) y combustible de la semana
   const viajesSemana = ingSemana.filter((i) => i.categoria === "flete").length;
@@ -77,14 +73,10 @@ const Home: React.FC = () => {
     .filter((g) => g.categoria === "peajes")
     .reduce((a, g) => a + g.monto, 0);
 
-  // Por cobrar = ingresos pendientes
+  // Clientes con pendientes (para el contador de la tarjeta de vehículo)
   const porCobrar = useMemo(
     () => ingresos.filter((i) => i.estado === "pendiente"),
     [ingresos],
-  );
-  const totalPorCobrar = porCobrar.reduce(
-    (a, i) => a + i.monto * (i.cantidad ?? 1),
-    0,
   );
 
   const actividad = [
@@ -110,7 +102,10 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent className="ion-padding tb-screen">
+      <IonContent
+        className="ion-padding tb-screen"
+        style={{ '--padding-top': 'calc(var(--ion-safe-area-top, 0px) + 16px)' } as React.CSSProperties}
+      >
         {/* ===== Vehículo activo ===== */}
         <div className="vehiculo-card" onClick={() => setShowModal(true)}>
           <div
@@ -202,137 +197,10 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* ===== Balance semana + Por cobrar ===== */}
+        {/* ===== Resumen + Por cobrar ===== */}
         <div className="home-duo">
-          {/* Balance de la semana */}
-          <div
-            className="gauge-card"
-            style={{ background: balPositivo ? "#e9f6ee" : "#fdecec" }}
-          >
-            <p style={{ margin: "4px 0", fontSize: 13, color: "#6b6b6b" }}>
-              Balance de la semana
-            </p>
-            <div
-              style={{
-                fontSize: 30,
-                fontWeight: 800,
-                color: balPositivo ? "#16A34A" : "#EF4444",
-              }}
-            >
-              {balPositivo ? "+" : ""}
-              {formatCompact(balanceSemana)}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 14,
-                fontSize: 13,
-              }}
-            >
-              <span style={{ color: "#16A34A", fontWeight: 600 }}>
-                <IonIcon icon={arrowUp} style={{ verticalAlign: "-2px" }} />{" "}
-                {formatCompact(totalIngSemana)}
-              </span>
-              <span style={{ color: "#EF4444", fontWeight: 600 }}>
-                <IonIcon icon={arrowDown} style={{ verticalAlign: "-2px" }} />{" "}
-                {formatCompact(totalGasSemana)}
-              </span>
-            </div>
-          </div>
-
-          {/* Por cobrar */}
-          <div className="cobrar-card">
-            <p
-              style={{
-                margin: 0,
-                fontSize: 14,
-                fontWeight: 700,
-                color: "#8a2a2a",
-              }}
-            >
-              Por cobrar
-            </p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                margin: "8px 0 12px",
-              }}
-            >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: "50%",
-                  background: "#f7c9c9",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <IonIcon
-                  icon={timeOutline}
-                  style={{ fontSize: 22, color: "#c0392b" }}
-                />
-              </div>
-              <span style={{ fontSize: 26, fontWeight: 800, color: "#e23b3b" }}>
-                {formatCompact(totalPorCobrar)}
-              </span>
-            </div>
-            {porCobrar.slice(0, 3).map((c) => (
-              <div
-                key={c.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 8,
-                }}
-              >
-                <IonIcon
-                  icon={personCircleOutline}
-                  style={{ fontSize: 20, color: "#c98a8a" }}
-                />
-                <span
-                  style={{
-                    fontSize: 13,
-                    color: "#3a3a3a",
-                    flex: 1,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {c.descripcion}
-                </span>
-                <span
-                  style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a" }}
-                >
-                  {formatCompact(c.monto)}
-                </span>
-              </div>
-            ))}
-            {porCobrar.length === 0 && (
-              <p style={{ margin: 0, fontSize: 12, color: "#b06a3a" }}>
-                Todo cobrado 🎉
-              </p>
-            )}
-            {porCobrar.length > 3 && (
-              <p
-                style={{
-                  margin: "4px 0 0",
-                  textAlign: "center",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#b06a3a",
-                }}
-              >
-                +{porCobrar.length - 3} más
-              </p>
-            )}
-          </div>
+          <WidgetResumen />
+          <WidgetInsightIA />
         </div>
 
         {/* ===== Actividad semanal ===== */}
@@ -379,54 +247,8 @@ const Home: React.FC = () => {
           ))}
         </div>
 
-        {/* ===== Resumen total ===== */}
-        <div className="top-clientes-card">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 14,
-            }}
-          >
-            <IonIcon icon={peopleOutline} style={{ fontSize: 20 }} />
-            <span style={{ fontSize: 19, fontWeight: 700 }}>Resumen total</span>
-          </div>
-          <div className="top-cliente-row" style={{ borderTop: "none" }}>
-            <span style={{ color: "#bbb" }}>Ingresos totales</span>
-            <span />
-            <span />
-            <span
-              style={{
-                minWidth: 70,
-                textAlign: "right",
-                fontSize: 17,
-                fontWeight: 800,
-                color: "#2dd36f",
-              }}
-            >
-              {formatCompact(
-                ingresos.reduce((a, i) => a + i.monto * (i.cantidad ?? 1), 0),
-              )}
-            </span>
-          </div>
-          <div className="top-cliente-row">
-            <span style={{ color: "#bbb" }}>Gastos totales</span>
-            <span />
-            <span />
-            <span
-              style={{
-                minWidth: 70,
-                textAlign: "right",
-                fontSize: 17,
-                fontWeight: 800,
-                color: "#eb445a",
-              }}
-            >
-              {formatCompact(gastos.reduce((a, g) => a + g.monto, 0))}
-            </span>
-          </div>
-        </div>
+        {/* ===== Top Clientes ===== */}
+        <WidgetClientes />
 
         {/* ===== Modal cambio de vehículo ===== */}
         <IonModal
