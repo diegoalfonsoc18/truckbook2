@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonContent,
   IonModal, IonDatetime, IonIcon,
 } from '@ionic/react';
 import { arrowForward, documentTextOutline, close } from 'ionicons/icons';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useData } from '../data/DataContext';
 import { GASTOS_CATEGORIAS, INGRESOS_CATEGORIAS, buscarCategoria } from '../data/categorias';
 import { generarReporteHTML, ViewType } from '../data/reporte';
@@ -100,6 +101,21 @@ const PERIODOS: { key: PeriodoRapido; label: string }[] = [
 const Reportes: React.FC = () => {
   const { gastos, ingresos, placa } = useData();
 
+  // Ancho medido para la gráfica (ResponsiveContainer de Recharts no mide bien en Ionic)
+  const chartWrapRef = useRef<HTMLDivElement>(null);
+  const [chartW, setChartW] = useState(320);
+  useEffect(() => {
+    const el = chartWrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width;
+      if (w && w > 0) setChartW(Math.floor(w));
+    });
+    ro.observe(el);
+    if (el.clientWidth > 0) setChartW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
   const [view, setView] = useState<ViewType>('meses');
   const [rango, setRango] = useState(rangoMesActual);
 
@@ -163,7 +179,17 @@ const Reportes: React.FC = () => {
     };
   }, [gastos, ingresos, rango.inicio, rango.fin, view]);
 
-  const maxBar = Math.max(1, ...chartIngresosData, ...chartGastosData);
+  const chartData = allKeys.map((k, i) => ({
+    name: formattedLabels[i],
+    Ingresos: chartIngresosData[i],
+    Gastos: chartGastosData[i],
+  }));
+  const compactNum = (n: number) => {
+    const abs = Math.abs(n);
+    if (abs >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (abs >= 1_000) return `${Math.round(n / 1_000)}K`;
+    return `${n}`;
+  };
   const esPositivo = balance >= 0;
   const balColor = esPositivo ? 'var(--tb-income)' : 'var(--tb-expense)';
   const rentNum = Number(rentabilidad);
@@ -326,21 +352,24 @@ const Reportes: React.FC = () => {
               <span><span style={{ color: 'var(--tb-expense)' }}>●</span> Gastos</span>
             </div>
           </div>
-          {allKeys.length === 0 ? (
-            <p className="tb-empty">Sin datos en este período.</p>
-          ) : (
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 130 }}>
-              {allKeys.map((k, i) => (
-                <div key={k} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ width: '100%', display: 'flex', gap: 3, alignItems: 'flex-end', justifyContent: 'center', height: 100 }}>
-                    <div style={{ width: '45%', height: `${(chartIngresosData[i] / maxBar) * 100}%`, minHeight: 2, background: 'var(--tb-income)', borderRadius: '4px 4px 0 0' }} />
-                    <div style={{ width: '45%', height: `${(chartGastosData[i] / maxBar) * 100}%`, minHeight: 2, background: 'var(--tb-expense)', borderRadius: '4px 4px 0 0' }} />
-                  </div>
-                  <span style={{ fontSize: 10, color: 'var(--tb-text-muted)' }}>{formattedLabels[i]}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div ref={chartWrapRef} style={{ width: '100%', marginLeft: -8 }}>
+            {allKeys.length === 0 ? (
+              <p className="tb-empty">Sin datos en este período.</p>
+            ) : (
+              <BarChart width={chartW} height={220} data={chartData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }} barGap={2}>
+                <CartesianGrid vertical={false} stroke="var(--tb-border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#AFAFAF' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#AFAFAF' }} axisLine={false} tickLine={false} width={42} tickFormatter={compactNum} />
+                <Tooltip
+                  formatter={(value) => fmtCurrency(Number(value))}
+                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  contentStyle={{ borderRadius: 12, border: '1px solid #E4E4E2', fontSize: 12 }}
+                />
+                <Bar dataKey="Ingresos" fill="#16A34A" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
+                <Bar dataKey="Gastos" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
+              </BarChart>
+            )}
+          </div>
         </div>
 
         {/* Detalles */}
