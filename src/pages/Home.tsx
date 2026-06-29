@@ -11,12 +11,7 @@ import {
   IonItem,
   IonLabel,
 } from "@ionic/react";
-import {
-  cubeOutline,
-  peopleOutline,
-  carOutline,
-  checkmarkCircle,
-} from "ionicons/icons";
+import { carOutline, checkmarkCircle } from "ionicons/icons";
 import volquetaImg from "../assets/icon/volquetaFlete.webp";
 import estacaImg from "../assets/icon/estacaFlete.webp";
 import fuelIcon from "../assets/icon/fuel.webp";
@@ -24,6 +19,7 @@ import truckIcon from "../assets/icon/freight.webp";
 import tollIcon from "../assets/icon/toll.webp";
 import { useData } from "../data/DataContext";
 import { inicioSemana, formatCompact } from "../data/format";
+import VehicleCard from "../components/VehicleCard";
 import WidgetClientes from "../components/WidgetClientes";
 import WidgetResumen from "../components/WidgetResumen";
 import WidgetInsightIA from "../components/WidgetInsightIA";
@@ -59,11 +55,6 @@ const Home: React.FC = () => {
     [gastos, lunes],
   );
 
-  const totalIngSemana = ingSemana.reduce(
-    (a, i) => a + i.monto * (i.cantidad ?? 1),
-    0,
-  );
-
   // Viajes (fletes) y combustible de la semana
   const viajesSemana = ingSemana.filter((i) => i.categoria === "flete").length;
   const combustibleSemana = gasSemana
@@ -72,12 +63,6 @@ const Home: React.FC = () => {
   const peajesSemana = gasSemana
     .filter((g) => g.categoria === "peajes")
     .reduce((a, g) => a + g.monto, 0);
-
-  // Clientes con pendientes (para el contador de la tarjeta de vehículo)
-  const porCobrar = useMemo(
-    () => ingresos.filter((i) => i.estado === "pendiente"),
-    [ingresos],
-  );
 
   const actividad = [
     {
@@ -107,95 +92,12 @@ const Home: React.FC = () => {
         style={{ '--padding-top': 'calc(var(--ion-safe-area-top, 0px) + 16px)' } as React.CSSProperties}
       >
         {/* ===== Vehículo activo ===== */}
-        <div className="vehiculo-card" onClick={() => setShowModal(true)}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-            }}
-          >
-            <div>
-              <p style={{ margin: 0, fontSize: 13, color: "#999" }}>
-                vehículo activo
-              </p>
-              <h1
-                style={{
-                  margin: "6px 0 8px",
-                  fontSize: 30,
-                  fontWeight: 800,
-                  color: "#1a1a1a",
-                }}
-              >
-                {vehiculoActivo.tipo}
-              </h1>
-              <span
-                className="placa-chip"
-                style={{ fontSize: 17, padding: "5px 16px" }}
-              >
-                {vehiculoActivo.placa}
-              </span>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ margin: 0, fontSize: 14, color: "#777" }}>
-                ⛽ 118 gal
-              </p>
-              <img
-                src={vehiculoActivo.img}
-                alt={vehiculoActivo.tipo}
-                style={{
-                  width: 140,
-                  height: "auto",
-                  marginTop: 4,
-                  display: "block",
-                  marginLeft: "auto",
-                }}
-              />
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 18,
-              marginTop: 16,
-            }}
-          >
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                color: "#666",
-                fontSize: 14,
-              }}
-            >
-              <IonIcon icon={cubeOutline} /> {viajesSemana} viajes
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                color: "#666",
-                fontSize: 14,
-              }}
-            >
-              <IonIcon icon={peopleOutline} /> {porCobrar.length} clientes
-            </span>
-            <span
-              style={{
-                marginLeft: "auto",
-                fontWeight: 800,
-                fontSize: 15,
-                color: "#1a1a1a",
-              }}
-            >
-              Esta semana: {formatCompact(totalIngSemana)}
-            </span>
-          </div>
-        </div>
+        <VehicleCard
+          tipo={vehiculoActivo.tipo}
+          placa={vehiculoActivo.placa}
+          img={vehiculoActivo.img}
+          onPress={() => setShowModal(true)}
+        />
 
         {/* ===== Resumen + Por cobrar ===== */}
         <div className="home-duo">
