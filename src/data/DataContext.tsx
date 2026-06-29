@@ -7,44 +7,56 @@ export const PLACA_DEFAULT = 'EKA854';
 // Alias retrocompatible
 export const PLACA_ACTUAL = PLACA_DEFAULT;
 
-// Versionamos las claves para re-sembrar con datos multi-vehículo
-const LS_GASTOS = 'tb_gastos_v2';
-const LS_INGRESOS = 'tb_ingresos_v2';
+// Versionamos las claves para re-sembrar con datos multi-vehículo y multi-fecha
+const LS_GASTOS = 'tb_gastos_v3';
+const LS_INGRESOS = 'tb_ingresos_v3';
 const LS_PLACA = 'tb_placa';
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-// ---- Datos de ejemplo por vehículo (solo la primera vez) ----
+// Fecha de hace N días en "YYYY-MM-DD"
+function diasAtras(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+// ---- Datos de ejemplo por vehículo, distribuidos en varias fechas (solo la primera vez) ----
 function seedGastos(): Gasto[] {
-  const f = hoyISO();
-  const g = (placa: string, categoria: string, descripcion: string, monto: number, estado: 'pendiente' | 'pagado'): Gasto =>
-    ({ id: uid(), placa, categoria, descripcion, monto, fecha: f, estado });
+  const g = (placa: string, categoria: string, descripcion: string, monto: number, dias: number, estado: 'pendiente' | 'pagado'): Gasto =>
+    ({ id: uid(), placa, categoria, descripcion, monto, fecha: diasAtras(dias), estado });
   return [
-    // EKA854 (Volqueta)
-    g('EKA854', 'parqueadero', 'Parqueadero centro', 15000, 'pagado'),
-    g('EKA854', 'comida', 'Almuerzo', 20000, 'pagado'),
-    g('EKA854', 'peajes', 'Peaje', 21500, 'pagado'),
-    g('EKA854', 'combustible', 'Tanqueo', 150000, 'pendiente'),
+    // EKA854 (Volqueta) — repartido en ~5 semanas
+    g('EKA854', 'combustible', 'Tanqueo', 150000, 0, 'pendiente'),
+    g('EKA854', 'comida', 'Almuerzo', 20000, 0, 'pagado'),
+    g('EKA854', 'peajes', 'Peaje', 21500, 3, 'pagado'),
+    g('EKA854', 'combustible', 'Tanqueo', 140000, 8, 'pagado'),
+    g('EKA854', 'parqueadero', 'Parqueadero centro', 15000, 8, 'pagado'),
+    g('EKA854', 'mantenimiento', 'Cambio de aceite', 90000, 15, 'pagado'),
+    g('EKA854', 'combustible', 'Tanqueo', 160000, 22, 'pagado'),
+    g('EKA854', 'peajes', 'Peajes', 25000, 30, 'pagado'),
     // TRK001 (Tractomula)
-    g('TRK001', 'combustible', 'Tanqueo ruta', 320000, 'pagado'),
-    g('TRK001', 'comida', 'Comida en ruta', 35000, 'pendiente'),
-    g('TRK001', 'peajes', 'Peajes ruta', 64000, 'pagado'),
+    g('TRK001', 'combustible', 'Tanqueo ruta', 320000, 1, 'pagado'),
+    g('TRK001', 'comida', 'Comida en ruta', 35000, 5, 'pendiente'),
+    g('TRK001', 'peajes', 'Peajes ruta', 64000, 12, 'pagado'),
     // CMN332 sin datos (estado vacío)
   ];
 }
 
 function seedIngresos(): Ingreso[] {
-  const f = hoyISO();
-  const i = (placa: string, descripcion: string, monto: number, estado: 'pendiente' | 'confirmado'): Ingreso =>
-    ({ id: uid(), placa, categoria: 'flete', descripcion, monto, fecha: f, estado, cantidad: 1 });
+  const i = (placa: string, descripcion: string, monto: number, dias: number, estado: 'pendiente' | 'confirmado'): Ingreso =>
+    ({ id: uid(), placa, categoria: 'flete', descripcion, monto, fecha: diasAtras(dias), estado, cantidad: 1 });
   return [
-    // EKA854
-    i('EKA854', 'Manuel Morales', 450000, 'pendiente'),
-    i('EKA854', 'Luis Fernando Puerta', 250000, 'confirmado'),
-    i('EKA854', 'Edwin Duarte', 750000, 'pendiente'),
+    // EKA854 — repartido en varias fechas
+    i('EKA854', 'Manuel Morales', 450000, 0, 'pendiente'),
+    i('EKA854', 'Edwin Duarte', 750000, 3, 'pendiente'),
+    i('EKA854', 'Luis Fernando Puerta', 250000, 8, 'confirmado'),
+    i('EKA854', 'Efraín Alvarado', 600000, 15, 'confirmado'),
+    i('EKA854', 'Manuel Morales', 400000, 22, 'confirmado'),
+    i('EKA854', 'Gerucho', 520000, 30, 'confirmado'),
     // TRK001
-    i('TRK001', 'Transportes del Valle', 1200000, 'confirmado'),
-    i('TRK001', 'Efraín Alvarado', 800000, 'pendiente'),
+    i('TRK001', 'Transportes del Valle', 1200000, 1, 'confirmado'),
+    i('TRK001', 'Efraín Alvarado', 800000, 6, 'pendiente'),
     // CMN332 sin datos
   ];
 }

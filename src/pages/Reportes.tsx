@@ -4,7 +4,7 @@ import {
   IonModal, IonDatetime, IonIcon,
 } from '@ionic/react';
 import { arrowForward, documentTextOutline, close } from 'ionicons/icons';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useData } from '../data/DataContext';
 import { GASTOS_CATEGORIAS, INGRESOS_CATEGORIAS, buscarCategoria } from '../data/categorias';
 import { generarReporteHTML, ViewType } from '../data/reporte';
@@ -116,7 +116,7 @@ const Reportes: React.FC = () => {
     return () => ro.disconnect();
   }, []);
 
-  const [view, setView] = useState<ViewType>('meses');
+  const [view, setView] = useState<ViewType>('dias');
   const [rango, setRango] = useState(rangoMesActual);
 
   // Calendario compartido (rango principal o de exportación)
@@ -356,18 +356,18 @@ const Reportes: React.FC = () => {
             {allKeys.length === 0 ? (
               <p className="tb-empty">Sin datos en este período.</p>
             ) : (
-              <BarChart width={chartW} height={220} data={chartData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }} barGap={2}>
+              <LineChart width={chartW} height={220} data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="var(--tb-border)" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#AFAFAF' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: '#AFAFAF' }} axisLine={false} tickLine={false} width={42} tickFormatter={compactNum} />
                 <Tooltip
                   formatter={(value) => fmtCurrency(Number(value))}
-                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  cursor={{ stroke: '#E4E4E2' }}
                   contentStyle={{ borderRadius: 12, border: '1px solid #E4E4E2', fontSize: 12 }}
                 />
-                <Bar dataKey="Ingresos" fill="#16A34A" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
-                <Bar dataKey="Gastos" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
-              </BarChart>
+                <Line type="monotone" dataKey="Ingresos" stroke="#16A34A" strokeWidth={2.5} dot={{ r: 3, fill: '#16A34A' }} activeDot={{ r: 5 }} isAnimationActive={false} />
+                <Line type="monotone" dataKey="Gastos" stroke="#EF4444" strokeWidth={2.5} dot={{ r: 3, fill: '#EF4444' }} activeDot={{ r: 5 }} isAnimationActive={false} />
+              </LineChart>
             )}
           </div>
         </div>
