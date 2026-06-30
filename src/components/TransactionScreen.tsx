@@ -154,18 +154,20 @@ const TransactionScreen: React.FC<Props> = ({
       </IonContent>
 
       {/* Date picker */}
-      <IonModal isOpen={showDatePicker} onDidDismiss={() => setShowDatePicker(false)}
+      <IonModal className="tb-date-modal" isOpen={showDatePicker} onDidDismiss={() => setShowDatePicker(false)}
         breakpoints={[0, 0.6]} initialBreakpoint={0.6}>
         <IonContent>
-          <IonDatetime
-            presentation="date"
-            value={selectedDate}
-            onIonChange={(e) => {
-              const v = e.detail.value;
-              if (typeof v === 'string') setSelectedDate(v.slice(0, 10));
-              setShowDatePicker(false);
-            }}
-          />
+          <div className="tb-date-modal-body">
+            <IonDatetime
+              presentation="date"
+              value={selectedDate}
+              onIonChange={(e) => {
+                const v = e.detail.value;
+                if (typeof v === 'string') setSelectedDate(v.slice(0, 10));
+                setShowDatePicker(false);
+              }}
+            />
+          </div>
         </IonContent>
       </IonModal>
 
