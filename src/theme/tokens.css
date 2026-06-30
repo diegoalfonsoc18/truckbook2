@@ -67,15 +67,15 @@
                     font-size:16px; font-weight:800; flex-shrink:0; }
 
 /* ===== Grid de categorías (4 columnas) ===== */
-.tb-cat-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:24px; }
+.tb-cat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:24px; }
 .tb-cat-item { display:flex; flex-direction:column; align-items:center; gap:6px;
                padding:14px 4px; background:var(--tb-card-bg);
                border:1px solid var(--tb-border); border-radius:16px;
                cursor:pointer; transition:transform 0.1s; }
 .tb-cat-item:active { transform:scale(0.95); }
-.tb-cat-icon { width:52px; height:52px; border-radius:28px;
-               display:flex; align-items:center; justify-content:center; font-size:24px; }
-.tb-cat-icon img { width:32px; height:32px; object-fit:contain; }
+.tb-cat-icon { width:80px; height:80px; border-radius:42px;
+               display:flex; align-items:center; justify-content:center; font-size:38px; }
+.tb-cat-icon img { width:54px; height:54px; object-fit:contain; }
 .tb-cat-label{ font-size:10px; font-weight:600; text-align:center; color:var(--tb-text); }
 
 /* ===== Encabezado de lista ===== */
